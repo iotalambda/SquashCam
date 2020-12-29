@@ -1,0 +1,17 @@
+{
+  "folders": [
+    {
+      "path": ".."
+    }
+  ],
+  "settings": {
+    "terminal.integrated.shellArgs.windows": [
+      "-ExecutionPolicy",
+      "ByPass",
+      "-NoExit",
+      "-Command",
+      "C:\\Users\\${env:USERNAME}\\anaconda3\\shell\\condabin\\conda-hook.ps1"
+    ],
+    "python.formatting.provider": "black"
+  }
+}
