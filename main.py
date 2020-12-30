@@ -17,11 +17,28 @@ def angle(p1, p2):
     return atan2(p2[0] - p1[0], p2[1] - p1[1])
 
 
-def is_point_near_line(p1_l, p2_l, p, treshold):
+def is_point_near_line(p1_l, p2_l, p, threshold):
     return (
         np.linalg.norm(np.cross(p2_l - p1_l, p1_l - p)) / np.linalg.norm(p2_l - p1_l)
-        < treshold
+        < threshold
     )
+
+
+def is_distance_greater_than(l1_p1, l1_p2, l2_p1, l2_p2, threshold):
+    pairs = [(l1_p1, l2_p1), (l1_p2, l2_p1), (l1_p1, l2_p2), (l1_p2, l2_p2)]
+    l1_len = np.linalg.norm(l1_p2 - l1_p1)
+    l2_len = np.linalg.norm(l1_p2 - l1_p2)
+    max_len = 0
+    min_len = 999999
+    for p1, p2 in pairs:
+        next_len = np.linalg.norm(p1 - p2)
+        if max_len < next_len:
+            max_len = next_len
+        if min_len > next_len:
+            min_len = next_len
+    if max_len < l1_len + l2_len:
+        return False
+    return min_len > threshold
 
 
 class CamScreen(BoxLayout):
@@ -62,7 +79,8 @@ class CamScreen(BoxLayout):
         # Remove adjacent lines
         # Maximize lines
         angle_treshold = 0.2
-        nearness_treshold = 10
+        point_nearness_treshold = 10
+        line_distance_treshold = 100
         ixs_to_remove = []
         for i1 in range(0, len(lines) - 1):
             l1_p1, l1_p2, l1_a = lines[i1]
@@ -73,9 +91,13 @@ class CamScreen(BoxLayout):
                     angle_diff > np.pi - angle_treshold or angle_diff < angle_treshold
                 ):
                     continue
-                if not is_point_near_line(l1_p1, l1_p2, l2_p1, nearness_treshold):
+                if not is_point_near_line(l1_p1, l1_p2, l2_p1, point_nearness_treshold):
                     continue
-                if not is_point_near_line(l1_p1, l1_p2, l2_p2, nearness_treshold):
+                if not is_point_near_line(l1_p1, l1_p2, l2_p2, point_nearness_treshold):
+                    continue
+                if is_distance_greater_than(
+                    l1_p1, l1_p2, l2_p1, l2_p2, line_distance_treshold
+                ):
                     continue
                 ixs_to_remove.append(i2)
 
